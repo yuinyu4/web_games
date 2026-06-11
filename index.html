@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1013">
+  <meta name="description" content="테트리스, 지뢰찾기, 스네이크, 2048, 벽돌깨기, 기억력 카드를 한곳에서 즐기는 정적 미니게임 사이트">
+  <title>PLAYROOM - 종합 미니게임</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <main class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="PLAYROOM 처음으로">PLAYROOM</a>
+      <div class="topbar-tools">
+        <div class="total-best" aria-label="모든 게임 최고 기록 합계">
+          <span>총 최고 기록</span>
+          <strong id="totalBest">0</strong>
+        </div>
+        <button class="sound-toggle" id="soundToggle" type="button" aria-pressed="true">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 9v6h4l5 4V5L8 9H4Z"></path>
+            <path class="sound-wave" d="M16 8c1.2 1 1.8 2.3 1.8 4S17.2 15 16 16"></path>
+            <path class="sound-wave" d="M18.5 5.5C20.2 7.2 21 9.3 21 12s-.8 4.8-2.5 6.5"></path>
+          </svg>
+          <span>사운드</span>
+          <span class="toggle-track" aria-hidden="true"><span></span></span>
+        </button>
+      </div>
+    </header>
+
+    <section class="intro" aria-labelledby="pageTitle">
+      <h1 id="pageTitle">잠깐의 틈,<br class="mobile-break"> 한 판의 몰입.</h1>
+      <p>간단한 규칙, 깊은 재미.<br>원하는 게임을 선택하고 바로 즐겨보세요.</p>
+    </section>
+
+    <section class="play-area" aria-label="게임 플레이 영역">
+      <div class="stage-frame">
+        <div class="stage-topline">
+          <span id="stageLabel">BLOCK 01</span>
+          <span id="stageStatus" aria-live="polite">PLAYING</span>
+        </div>
+        <div class="game-stage" id="gameStage">
+          <canvas id="gameCanvas" aria-label="게임 화면"></canvas>
+          <div id="domGame" class="dom-game" hidden></div>
+          <div class="game-message" id="gameMessage" hidden>
+            <p id="messageEyebrow">ROUND OVER</p>
+            <strong id="messageTitle">게임 종료</strong>
+            <button type="button" id="messageRestart">다시 시작</button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="control-panel">
+        <div class="game-heading">
+          <div>
+            <span class="micro-label">현재 게임</span>
+            <h2 id="currentGameTitle">테트리스</h2>
+          </div>
+          <div class="game-mark" id="gameMark" aria-hidden="true"></div>
+        </div>
+
+        <div class="scoreboard">
+          <div>
+            <span>점수</span>
+            <strong id="score">0</strong>
+          </div>
+          <div>
+            <span>최고 기록</span>
+            <strong id="bestScore">0</strong>
+          </div>
+        </div>
+
+        <div class="primary-actions">
+          <button class="action-button restart" id="restartButton" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"></path></svg>
+            다시 시작
+          </button>
+          <button class="action-button pause" id="pauseButton" type="button">
+            <svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"></path></svg>
+            <span id="pauseLabel">일시정지</span>
+          </button>
+        </div>
+
+        <div class="controls-copy">
+          <span class="micro-label">조작 방법</span>
+          <div id="controlsText"></div>
+        </div>
+
+        <div class="touch-controls" id="touchControls" aria-label="터치 조작">
+          <button type="button" data-action="left" aria-label="왼쪽">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"></path></svg>
+          </button>
+          <button type="button" data-action="up" aria-label="위">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 15 7-7 7 7"></path></svg>
+          </button>
+          <button type="button" data-action="right" aria-label="오른쪽">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"></path></svg>
+          </button>
+          <button type="button" data-action="down" aria-label="아래">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 9 7 7 7-7"></path></svg>
+          </button>
+          <button class="wide" type="button" data-action="action" aria-label="게임 동작">
+            <span id="touchActionLabel">회전</span>
+          </button>
+        </div>
+      </aside>
+    </section>
+
+    <section class="game-picker" aria-labelledby="pickerTitle">
+      <div class="section-heading">
+        <h2 id="pickerTitle">게임 선택</h2>
+        <span>6 GAMES · NO DOWNLOAD</span>
+      </div>
+      <div class="game-list" id="gameList">
+        <button class="game-card is-selected" type="button" data-game="tetris" aria-pressed="true">
+          <span class="thumb thumb-tetris" aria-hidden="true">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          </span>
+          <span class="card-copy"><strong>테트리스</strong><small>블록을 쌓아 라인을 지우세요.</small></span>
+          <span class="card-number">01</span>
+        </button>
+
+        <button class="game-card" type="button" data-game="mines" aria-pressed="false">
+          <span class="thumb thumb-mines" aria-hidden="true">
+            <b>1</b><b>2</b><b></b><b>1</b><b>✦</b><b>2</b><b></b><b>1</b><b>1</b>
+          </span>
+          <span class="card-copy"><strong>지뢰찾기</strong><small>지뢰를 피해 모든 칸을 여세요.</small></span>
+          <span class="card-number">02</span>
+        </button>
+
+        <button class="game-card" type="button" data-game="snake" aria-pressed="false">
+          <span class="thumb thumb-snake" aria-hidden="true">
+            <i class="apple"></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          </span>
+          <span class="card-copy"><strong>스네이크</strong><small>꼬리를 피해 먹이를 모으세요.</small></span>
+          <span class="card-number">03</span>
+        </button>
+
+        <button class="game-card" type="button" data-game="game2048" aria-pressed="false">
+          <span class="thumb thumb-2048" aria-hidden="true">
+            <b>2</b><b>4</b><b>8</b><b>16</b><b>32</b><b>64</b><b>128</b><b>256</b><b>512</b><b>1024</b><b>2048</b>
+          </span>
+          <span class="card-copy"><strong>2048</strong><small>같은 숫자를 합쳐 2048을 만드세요.</small></span>
+          <span class="card-number">04</span>
+        </button>
+
+        <button class="game-card" type="button" data-game="breakout" aria-pressed="false">
+          <span class="thumb thumb-breakout" aria-hidden="true">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><b></b><em></em>
+          </span>
+          <span class="card-copy"><strong>벽돌깨기</strong><small>공을 튕겨 벽돌을 모두 깨세요.</small></span>
+          <span class="card-number">05</span>
+        </button>
+
+        <button class="game-card" type="button" data-game="memory" aria-pressed="false">
+          <span class="thumb thumb-memory" aria-hidden="true">
+            <b>◆</b><b></b><b>★</b><b></b><b></b><b>●</b><b></b><b>◆</b>
+          </span>
+          <span class="card-copy"><strong>기억력 카드</strong><small>카드를 뒤집어 같은 짝을 찾으세요.</small></span>
+          <span class="card-number">06</span>
+        </button>
+      </div>
+    </section>
+
+    <footer class="key-guide">
+      <div><kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd><span>이동</span></div>
+      <div><kbd>SPACE</kbd><span>동작 / 빠른 낙하</span></div>
+      <div><kbd>P</kbd><span>일시정지</span></div>
+      <div><kbd>R</kbd><span>다시 시작</span></div>
+    </footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
